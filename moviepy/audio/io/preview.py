@@ -55,6 +55,15 @@ def preview(clip, fps=22050,  buffersize=4000, nbytes=2, audioFlag=None,
         
     channel = chunk.play()
     for i in range(1, len(pospos)-1):
+        if (audioFlag is None) and (videoFlag is None):
+            # Accept pygame events when there is no video playing
+            for event in pg.event.get():
+                if event.type == pg.QUIT or \
+                        (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
+                    return
+                elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+                    print("time: ", "%.02f" % (tt[0]))
+
         tt = (1.0/fps)*np.arange(pospos[i], pospos[i+1])
         sndarray = clip.to_soundarray(tt, nbytes=nbytes, quantize=True)
         chunk = pg.sndarray.make_sound(sndarray)
