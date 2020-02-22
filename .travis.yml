@@ -1,12 +1,14 @@
 language: python
 # ===== Linux ======
+os: linux
 dist: xenial
 python:
   - 2.7
   - 3.5
   - 3.6
   - 3.7
-matrix:
+
+jobs:
   include:      
     # ======= OSX ========
     - name: "Python 2.7.14 on macOS 10.13"
