@@ -21,13 +21,19 @@ import os
 import sys
 
 # Downloads ffmpeg if it isn't already installed
+import warnings
+
 import imageio
+import imageio_ffmpeg
 # Checks to see if the user has set a place for their own version of ffmpeg
 
 if os.getenv('FFMPEG_BINARY', 'ffmpeg-imageio') == 'ffmpeg-imageio':
     if sys.version_info < (3, 4):
         #uses an old version of imageio with ffmpeg.download.
         imageio.plugins.ffmpeg.download()
+    else:
+        warnings.warn("No FFMPEG BINARY" + imageio_ffmpeg.get_ffmpeg_exe())
+
 
 # Hide the welcome message from pygame: https://github.com/pygame/pygame/issues/542
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "1"
