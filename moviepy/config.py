@@ -106,7 +106,9 @@ elif FFMPEG_BINARY=='auto-detect':
     elif try_cmd(['ffmpeg.exe'])[0]:
         FFMPEG_BINARY = 'ffmpeg.exe'
     else:
-        FFMPEG_BINARY = 'unset'
+        from imageio.plugins.ffmpeg import get_exe
+        FFMPEG_BINARY = get_exe()
+
 else:
     success, err = try_cmd([FFMPEG_BINARY])
     if not success:
