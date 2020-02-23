@@ -65,6 +65,8 @@ before_install:
   - python --version
   - pip install -U pip
   - pip install -U pytest pytest-timeout
+  - cat /etc/ImageMagick-6/policy.xml | sed 's/none/read,write/g' | sudo tee /etc/ImageMagick-6/policy.xml
+
 
 install:
   - pip install ".[test]"
