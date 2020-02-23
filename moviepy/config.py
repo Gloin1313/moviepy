@@ -79,14 +79,8 @@ def _popen_kwargs():
 
 def _is_valid_exe(exe):
     cmd = [exe, "-version"]
-    try:
-        with open(os.devnull, "w") as null:
-            subprocess.check_call(
-                cmd, stdout=null, stderr=subprocess.STDOUT, **_popen_kwargs()
-            )
-        return True
-    except (OSError, ValueError, subprocess.CalledProcessError):
-        return False
+    with open(os.devnull, "w") as null: subprocess.check_call(cmd, stdout=null, stderr=subprocess.STDOUT, **_popen_kwargs())
+    return True
 
 if FFMPEG_BINARY=='ffmpeg-imageio':
     from imageio.plugins.ffmpeg import get_exe
