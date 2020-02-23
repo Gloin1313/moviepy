@@ -98,6 +98,7 @@ if FFMPEG_BINARY=='ffmpeg-imageio':
     print("bin_dir = {}".format(bin_dir))
     exe = os.path.join(bin_dir, FNAME_PER_PLATFORM.get(plat, ""))
     print("exe = {}".format(exe))
+    print("1: {}, 2: {}".format(os.path.isfile(exe), _is_valid_exe(exe)))
     if exe and os.path.isfile(exe) and _is_valid_exe(exe):
         print("Exe! {}".format(exe))
 
