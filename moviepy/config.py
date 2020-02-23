@@ -1,5 +1,10 @@
 import os
+import struct
+import subprocess
 import subprocess as sp
+import sys
+from pkg_resources import resource_filename
+
 
 from .compat import DEVNULL
 from .config_defaults import FFMPEG_BINARY, IMAGEMAGICK_BINARY
@@ -31,8 +36,72 @@ def try_cmd(cmd):
     else:
         return True, None
 
+def get_platform():
+    bits = struct.calcsize("P") * 8
+    if sys.platform.startswith("linux"):
+        return "linux{}".format(bits)
+    elif sys.platform.startswith("win"):
+        return "win{}".format(bits)
+    elif sys.platform.startswith("cygwin"):
+        return "win{}".format(bits)
+    elif sys.platform.startswith("darwin"):
+        return "osx{}".format(bits)
+    else:  # pragma: no cover
+        return None
+
+FNAME_PER_PLATFORM = {
+    "osx64": "ffmpeg-osx64-v4.1",  # 10.9+
+    "win32": "ffmpeg-win32-v4.1.exe",  # Windows 7+
+    "win64": "ffmpeg-win64-v4.1.exe",
+    # "linux32": "ffmpeg-linux32-v4.1",
+    "linux64": "ffmpeg-linux64-v4.1",  # Kernel 2.6.32+
+}
+
+def _popen_kwargs():
+    startupinfo = None
+    preexec_fn = None
+    creationflags = 0
+    if sys.platform.startswith("win"):
+        # Stops executable from flashing on Windows (see #22)
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        # Prevent propagation of sigint (see #4)
+        creationflags = 0x00000200
+    else:
+        # Prevent propagation of sigint (see #4)
+        # https://stackoverflow.com/questions/5045771
+        preexec_fn = os.setpgrp  # the _pre_exec does not seem to work
+    return {
+        "startupinfo": startupinfo,
+        "creationflags": creationflags,
+        "preexec_fn": preexec_fn,
+    }
+
+def _is_valid_exe(exe):
+    cmd = [exe, "-version"]
+    try:
+        with open(os.devnull, "w") as null:
+            subprocess.check_call(
+                cmd, stdout=null, stderr=subprocess.STDOUT, **_popen_kwargs()
+            )
+        return True
+    except (OSError, ValueError, subprocess.CalledProcessError):
+        return False
+
 if FFMPEG_BINARY=='ffmpeg-imageio':
     from imageio.plugins.ffmpeg import get_exe
+    import imageio_ffmpeg
+    plat = get_platform()
+
+    # 2. Try from here
+    bin_dir = resource_filename("imageio_ffmpeg", "binaries")
+    print("bin_dir = {}".format(bin_dir))
+    exe = os.path.join(bin_dir, FNAME_PER_PLATFORM.get(plat, ""))
+    print("exe = {}".format(exe))
+    if exe and os.path.isfile(exe) and _is_valid_exe(exe):
+        print("Exe! {}".format(exe))
+
+
     FFMPEG_BINARY = get_exe()
 
 elif FFMPEG_BINARY=='auto-detect':
