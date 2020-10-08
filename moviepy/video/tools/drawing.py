@@ -256,10 +256,6 @@ def color_split(
             arr[y:] = col2
         return arr
 
-    # if we are here, it means we didn't exit with a proper 'return'
-    print("Arguments in color_split not understood !")
-    raise
-
 
 def circle(screensize, center, radius, col1=1.0, col2=0, blur=1):
     """Draw an image with a circle.
